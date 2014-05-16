@@ -1,0 +1,9 @@
+Done:
+Basemap on page
+Load ESAPPharmacies json on map
+Code to aggrigate ESSAP points to counties, cities
+
+To do:
+Set point visibility at various zoom levels, map bounds
+Address search
+Generate nearest point
