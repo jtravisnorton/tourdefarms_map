@@ -24,26 +24,26 @@ function Group(geojson_path, name){
     var counties = [];
     var pointMap = [];
   	this.point_group.eachLayer(function(layer){
-  		var feature = layer.toGeoJSON();
-      pointMap[feature.id] = {layer: layer, latlng: layer.getLatLng()};
-  		layer.bindPopup(feature.id);
-  		if (cities[feature.properties.city] == null){
-  			cities[feature.properties.city] = {count: 1, x: feature.geometry.coordinates[0], y: feature.geometry.coordinates[1]};
-  		}
-  		else {
-  			cities[feature.properties.city].count = cities[feature.properties.city].count + 1;
-  			cities[feature.properties.city].x = (cities[feature.properties.city].x + feature.geometry.coordinates[0])/2
-  			cities[feature.properties.city].y = (cities[feature.properties.city].y + feature.geometry.coordinates[1])/2
-  		}
+        var feature = layer.toGeoJSON();
+        name = feature.id + "/" + feature.properties.street + "/" + feature.properties.citystatezip;
+        pointMap[name] = {layer: layer, latlng: layer.getLatLng()};
+        if (cities[feature.properties.city] == null){
+            cities[feature.properties.city] = {count: 1, x: feature.geometry.coordinates[0], y: feature.geometry.coordinates[1]};
+        }
+        else {
+            cities[feature.properties.city].count = cities[feature.properties.city].count + 1;
+            cities[feature.properties.city].x = (cities[feature.properties.city].x + feature.geometry.coordinates[0])/2
+            cities[feature.properties.city].y = (cities[feature.properties.city].y + feature.geometry.coordinates[1])/2
+        }
 
-  		if (counties[feature.properties.cntyname] == null){
-  			counties[feature.properties.cntyname] = {count: 1, x: feature.geometry.coordinates[0], y: feature.geometry.coordinates[1]};
-  		}
-  		else {
-  			counties[feature.properties.cntyname].count = counties[feature.properties.cntyname].count + 1;
-  			counties[feature.properties.cntyname].x = (counties[feature.properties.cntyname].x + feature.geometry.coordinates[0])/2
-  			counties[feature.properties.cntyname].y = (counties[feature.properties.cntyname].y + feature.geometry.coordinates[1])/2
-  		}
+        if (counties[feature.properties.cntyname] == null){
+            counties[feature.properties.cntyname] = {count: 1, x: feature.geometry.coordinates[0], y: feature.geometry.coordinates[1]};
+        }
+        else {
+            counties[feature.properties.cntyname].count = counties[feature.properties.cntyname].count + 1;
+            counties[feature.properties.cntyname].x = (counties[feature.properties.cntyname].x + feature.geometry.coordinates[0])/2
+            counties[feature.properties.cntyname].y = (counties[feature.properties.cntyname].y + feature.geometry.coordinates[1])/2
+        }
   	});
   	this.cities = cities;
   	this.counties = counties;
