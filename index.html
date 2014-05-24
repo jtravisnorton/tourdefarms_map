@@ -23,6 +23,32 @@
     line-height:40px;
     height: 5px;
     }
+
+    .info {
+        height: 500px;
+        width: 400px;
+        padding: 6px 8px;
+        font: 14px/16px Arial, Helvetica, sans-serif;
+        background: white;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border-radius: 5px;
+    }
+    .info h4 {
+        margin: 0 0 5px;
+        color: #777;
+    }
+
+    .legend {
+        line-height: 18px;
+        color: #555;
+    }
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.7;
+    }
     </style>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -35,13 +61,38 @@
 </head>
 
 <body>
-<form name="address" id="address" target="_self">
-<div class="input-group">
-  <span class="input-group-addon">find the nearest dropbox</span>
-  <input type="text" class="form-control" name="address" placeholder="address or zipcode">
-</div>
-</form>
-<div id="map">
+     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Dropbox  <span class="glyphicon glyphicon-info-sign" data-toggle="modal" data-target="#myModal">
+            </span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+            
+        </div>
+      </div>
+    </div>
+   
+    <div id="map">
+    </div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Dropbox</h4>
+          </div>
+          <div class="modal-body">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
     //set map environment
@@ -49,8 +100,14 @@
     var zoom_counties = 10;
     var zoom_cities = 12;
     var zoom_points = 13;
+    var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function () {
+        var div = L.DomUtil.create('div', 'info legend');
+        div.innerHTML = '<form name="address" id="address" target="_self"> <div class="input-group"><span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span><input type="text" class="form-control" name="address" placeholder="enter your address or zipcode"></div></form>';
+        return div;
+    };
     window.onload = function(){
-        map = L.map('map');
+        map = L.map('map', {zoomControl: false});
         L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
                     attribution:
                         '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
@@ -74,7 +131,11 @@
             if (map.getZoom() > zoom_points){
                 popInvisiblePoints(group_test, map);
             }
+
         });
+
+        //legend design
+        legend.addTo(map);
 
         //create new layer group
         var group_test = new Group("static/json/esap_pharmacies.geojson", 'test');
@@ -91,39 +152,101 @@
             }
           }
         }
-    }
-    
-    //geocoding address
-    $('#address').submit(function () {
-        codeAddress();
-        return false;
-    });
-    var address_marker = null;
-    var address_buffer = null;
-    function codeAddress() {
-        var search_address = document.forms["address"]["address"].value
-        console.log(search_address);
-        var geocoder = new google.maps.Geocoder();
-        if (address_marker != null){
-            map.removeLayer(address_marker);
-            map.removeLayer(address_buffer)
-        }
-        geocoder.geocode( { 'address': search_address}, function(results, status) {
-          console.log(results, status);
-          if (status == google.maps.GeocoderStatus.OK) {
-            var latlng = L.latLng(results[0].geometry.location.k, results[0].geometry.location.A)
-            address_marker = L.marker(latlng);
-            address_buffer = L.circle(latlng, 1609.34)
-            map.addLayer(address_marker);
-            map.addLayer(address_buffer);
-            map.setView(address_marker.getLatLng(), zoom_points);
-            address_marker.bindPopup(search_address);
-            address_marker.openPopup();
-          } else {
-            alert("Geocode was not successful for the following reason: " + status);
-          }
+
+        //geocoding address
+        $('#address').submit(function () {
+            codeAddress();
+            $('.input-group-addon').html("searching");
+            return false;
         });
+        
+        map.on('layeradd', function(){
+            $('.input-group-addon').html('<span class="glyphicon glyphicon-search"></span>');
+        });
+        
+        var address_marker = null;
+        var address_buffer = null;
+        function codeAddress() {
+            var search_address = document.forms["address"]["address"].value
+            console.log(search_address);
+            var geocoder = new google.maps.Geocoder();
+            if (address_marker != null){
+                map.removeLayer(address_marker);
+                map.removeLayer(address_buffer)
+            }
+            geocoder.geocode( {'address': search_address}, function(results, status) {
+              console.log(results, status);
+              if (status == google.maps.GeocoderStatus.OK) {
+                var latlng = L.latLng(results[0].geometry.location.k, results[0].geometry.location.A)
+                address_marker = L.marker(latlng);
+                address_buffer = L.circle(latlng, 1609.34)
+                map.addLayer(address_marker);
+                map.addLayer(address_buffer);
+                map.setView(address_marker.getLatLng(), zoom_points);
+                address_marker.bindPopup(search_address);
+                address_marker.openPopup();
+                nearestPoints(address_marker, address_buffer, group_test);
+              } else {
+                alert("Geocode was not successful for the following reason: " + status);
+              }
+            });
+        }
+        
+        //get closest points
+        function nearestPoints(address_point, buffer, group){
+            near_points = [];
+            bounds = buffer.getBounds();
+            console.log(group.pointMap);
+            for (var p in group.pointMap){
+                var point = group.pointMap[p];
+                if(point.latlng.distanceTo(address_point.getLatLng()) <= buffer.getRadius()){
+                    near_points.push({"name": p, "point": point.layer, "distance": point.latlng.distanceTo(address_point.getLatLng())});
+                }
+            }
+            near_points.sort(function (a, b) {
+                if (a.distance > b.distance)
+                  return 1;
+                if (a.distance < b.distance)
+                  return -1;
+                // a must be equal to b
+                return 0;
+            });
+            console.log(near_points.slice(0, 10));
+            var tbody = document.createElement('tbody');
+            near_points.forEach(function(element, index, array){
+                var dot = L.marker(element.point.getLatLng(),{ 
+                              icon: L.divIcon({
+                              // specify a class name that we can refer to in styles, as we
+                              // do above.
+                              className: 'count-icon',
+                              // html here defines what goes in the div created for each marker
+                              html: index + 1,
+                              // and the marker width and height
+                              iconSize: [10, 10]
+                          })});
+                map.addLayer(dot);
+                var tr = document.createElement('tr');
+                tr.setAttribute('id', element.name);
+                tr.innerHTML = "<td>"+element.name+"</td>";
+                tr.onmouseover = function(e){
+                    p = e.target.parentElement.getAttribute('id');
+                    console.log(p);
+                    group.pointMap[p].layer.openPopup();
+                }
+                tbody.appendChild(tr);
+            });
+            var near_points_div = document.createElement('div');
+            near_points_div.className = "points-table";
+            var table = document.createElement("table");
+            table.className = "table table-hover";
+            table.innerHTML = "<thead> <tr> <th>Dropbox location</th> </tr> </thead>"
+            table.appendChild(tbody);
+            near_points_div.appendChild(table);
+            $(".points-table").remove();
+            $(".legend").append(near_points_div);
+        }
     }
+
 </script>
 </body>
 </html>
