@@ -22,7 +22,7 @@ function Group(geojson_path, name){
     //group points by cities, counties for aggregated viewing
     var cities = [];
     var counties = [];
-    var pointMap = {};
+    var pointMap = [];
   	this.point_group.eachLayer(function(layer){
   		var feature = layer.toGeoJSON();
       pointMap[feature.id] = {layer: layer, latlng: layer.getLatLng()};
