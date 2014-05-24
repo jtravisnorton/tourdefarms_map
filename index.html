@@ -25,7 +25,7 @@
     }
 
     .info {
-        height: 500px;
+        max-height: 790px;
         width: 400px;
         padding: 6px 8px;
         font: 14px/16px Arial, Helvetica, sans-serif;
@@ -49,6 +49,12 @@
         margin-right: 8px;
         opacity: 0.7;
     }
+
+    .points-table{
+        max-height: 700px;
+        overflow: scroll;
+        padding-top: 1em;
+    }
     </style>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -61,7 +67,7 @@
 </head>
 
 <body>
-     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+     <div class="navbar navbar-default navbar-fixed-top" style="background-color: rgba(255, 255, 255, 0);" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -74,10 +80,14 @@
             </span></a>
         </div>
         <div class="navbar-collapse collapse">
-            
+            <form name="address" id="address" target="_self" class="navbar-form navbar-left"> 
+                <div class="form-group address-search">
+                    <input type="text" autocomplete="off" class="form-control" name="address" placeholder="address">
+                </div>
+            </form>
+        </div>
         </div>
       </div>
-    </div>
    
     <div id="map">
     </div>
@@ -100,10 +110,22 @@
     var zoom_counties = 10;
     var zoom_cities = 12;
     var zoom_points = 13;
+    var zoom_max = 14;
     var legend = L.control({position: 'bottomright'});
     legend.onAdd = function () {
         var div = L.DomUtil.create('div', 'info legend');
-        div.innerHTML = '<form name="address" id="address" target="_self"> <div class="input-group"><span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span><input type="text" class="form-control" name="address" placeholder="enter your address or zipcode"></div></form>';
+        var content = div;
+        var stop = L.DomEvent.stopPropagation;
+        console.log(div.offsetWidth);
+        L.DomEvent
+            .on(content, 'click', stop)
+            .on(content, 'mousedown', stop)
+            .on(content, 'touchstart', stop)
+            .on(content, 'dblclick', stop)
+            .on(content, 'mousewheel', stop)
+            .on(content, 'MozMousePixelScroll', stop);
+
+        div.innerHTML = '';
         return div;
     };
     window.onload = function(){
@@ -133,10 +155,14 @@
             }
 
         });
-
-        //legend design
-        legend.addTo(map);
-
+        
+        $(".address-search").popover({
+            placement: 'bottom',
+            html: true,
+            content: "Enter your address to find the nearest dropoff location",
+            delay: { show: 100, hide: 100 }
+        });
+        $(".address-search").popover("show");
         //create new layer group
         var group_test = new Group("static/json/esap_pharmacies.geojson", 'test');
         group_test.county_group.addTo(map);
@@ -179,13 +205,12 @@
               if (status == google.maps.GeocoderStatus.OK) {
                 var latlng = L.latLng(results[0].geometry.location.k, results[0].geometry.location.A)
                 address_marker = L.marker(latlng);
-                address_buffer = L.circle(latlng, 1609.34)
+                address_buffer = L.circle(latlng, 16093.4);
                 map.addLayer(address_marker);
-                map.addLayer(address_buffer);
-                map.setView(address_marker.getLatLng(), zoom_points);
                 address_marker.bindPopup(search_address);
                 address_marker.openPopup();
                 nearestPoints(address_marker, address_buffer, group_test);
+                console.log(results);
               } else {
                 alert("Geocode was not successful for the following reason: " + status);
               }
@@ -193,14 +218,24 @@
         }
         
         //get closest points
+        var near_layers = L.layerGroup();
         function nearestPoints(address_point, buffer, group){
+            map.removeLayer(near_layers);
+            near_layers = L.layerGroup();
             near_points = [];
             bounds = buffer.getBounds();
-            console.log(group.pointMap);
+            var o = address_point.getLatLng();
+            map.panTo(o);
+            popInvisiblePoints(group_test, map);
             for (var p in group.pointMap){
-                var point = group.pointMap[p];
-                if(point.latlng.distanceTo(address_point.getLatLng()) <= buffer.getRadius()){
-                    near_points.push({"name": p, "point": point.layer, "distance": point.latlng.distanceTo(address_point.getLatLng())});
+                var point = group.pointMap[p].layer;
+                var d = point.getLatLng();
+                var distance = d.distanceTo(o);
+                var directions_url = "https://www.google.com/maps/dir/"+o.lat+","+o.lng+"/"+d.lat+","+d.lng;
+                var feature = point.toGeoJSON();
+                point.bindPopup("<td><strong>"+feature.id+"</strong><br>"+feature.properties.street+" "+feature.properties.citystatezip+"<br><a href="+directions_url+" target='_blank'>get directions</a></td>");
+                if(distance <= buffer.getRadius()){
+                    near_points.push({"name": p, "point": point, "distance": distance, "directions_url": directions_url});
                 }
             }
             near_points.sort(function (a, b) {
@@ -211,37 +246,45 @@
                 // a must be equal to b
                 return 0;
             });
-            console.log(near_points.slice(0, 10));
             var tbody = document.createElement('tbody');
+            if(near_points.length > 10){
+                near_points = near_points.slice(0,10);
+            }
+            var near_points_bounds = null;
             near_points.forEach(function(element, index, array){
-                var dot = L.marker(element.point.getLatLng(),{ 
-                              icon: L.divIcon({
-                              // specify a class name that we can refer to in styles, as we
-                              // do above.
-                              className: 'count-icon',
-                              // html here defines what goes in the div created for each marker
-                              html: index + 1,
-                              // and the marker width and height
-                              iconSize: [10, 10]
-                          })});
-                map.addLayer(dot);
+                if (near_points_bounds == null){
+                    near_points_bounds = L.latLngBounds([element.point.getLatLng(), address_point.getLatLng()]);
+                }
+                else{
+                    near_points_bounds.extend(element.point.getLatLng());
+                }
+                var line = L.polyline([element.point.getLatLng(), address_point.getLatLng()]);
+                near_layers.addLayer(line);
+                
+                //adds near points to legend
                 var tr = document.createElement('tr');
                 tr.setAttribute('id', element.name);
-                tr.innerHTML = "<td>"+element.name+"</td>";
+                var feature = element.point.toGeoJSON();
+                var rank = index + 1;
+                tr.innerHTML = "<td>"+rank+"</td><td><strong>"+feature.id+"</strong><br>"+feature.properties.street+"<br>"+feature.properties.citystatezip+"<br><a href="+element.directions_url+" target='_blank'>get directions</a></td>";
                 tr.onmouseover = function(e){
                     p = e.target.parentElement.getAttribute('id');
-                    console.log(p);
-                    group.pointMap[p].layer.openPopup();
+                    if (typeof group.pointMap[p] != 'undefined'){
+                        group.pointMap[p].layer.openPopup();
+                    }
                 }
                 tbody.appendChild(tr);
             });
+            map.addLayer(near_layers);
+            map.fitBounds(near_points_bounds, {maxZoom: zoom_max});
             var near_points_div = document.createElement('div');
             near_points_div.className = "points-table";
+            near_points_div.innerHTML = '<h4>Nearest dropoff locations</h4>'
             var table = document.createElement("table");
             table.className = "table table-hover";
-            table.innerHTML = "<thead> <tr> <th>Dropbox location</th> </tr> </thead>"
             table.appendChild(tbody);
             near_points_div.appendChild(table);
+            legend.addTo(map);
             $(".points-table").remove();
             $(".legend").append(near_points_div);
         }
