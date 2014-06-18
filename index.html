@@ -14,8 +14,9 @@
     <script src="static/js/L.Control.Sidebar.js"></script>
     <style type="text/css">
     #map {
-        height: 92vh;
+        height: 88vh;
         margin-top: 4em;
+        margin-bottom: 4em;
     }
 
     .count-icon {
@@ -41,11 +42,11 @@
         color: #777;
     }
 
-    .legend {
+    .nearest_sidebar {
         line-height: 18px;
         color: #555;
     }
-    .legend i {
+    .nearest_sidebar i {
         width: 18px;
         /*height: 18px;*/
         float: left;
@@ -60,9 +61,21 @@
         padding-top: 1em;
     }
 
-    .near-point-legend {
+    .near-point-nearest_sidebar {
         cursor: pointer;
     }
+
+    .legend {
+        background-color: white;
+        width: 200px;
+
+    }
+
+    .legend-table{
+        height: 10px;
+        vertical-align: middle;
+    }
+
     </style>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -75,7 +88,7 @@
 </head>
 
 <body>
-    <div class="navbar navbar-default navbar-fixed-top" style="background-color: rgba(255, 255, 255, 0);" role="navigation">
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -88,17 +101,28 @@
                 </span></a>
             </div>
             <div class="navbar-collapse collapse">
-                <form name="address" id="address" target="_self" class="navbar-form navbar-left"> 
-                    <div class="form-group address-search">
-                        <a id="address-input"><input type="text" autocomplete="off" class="form-control" name="address" placeholder="address"></a>
-                    </div>
-                </form>
+                
+                <ul class="nav navbar-nav">
+                    <li><a href="#"><span id="geolocate" class="glyphicon glyphicon-map-marker" data-toggle="tooltip" data-placement="bottom" title="Show my location"></span></a></li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span id="address_search" class="glyphicon glyphicon-search" data-toggle="tooltip" data-placement="bottom" title="Search your address"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">
+                            <form name="address" id="address" target="_self" class="navbar-form navbar-left" role="search"> 
+                                <div class="form-group address-search">
+                                    <input type="text" autocomplete="off" class="form-control" name="address" placeholder="address">
+                                </div>
+                                <button type="submit" id="address-search-button" data-loading-text="Searching..." class="btn btn-primary">Search</button>
+                            </form>
+                        </a></li>
+                    </ul>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
     <div id="map">
     </div>
-    <div class="modal fade" id="opening-dialog" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="opening-dialog" role="dialog" aria-hidden="true" style="z-index: 2001">
         <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -121,7 +145,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="z-index: 2001">
         <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -134,7 +158,23 @@
             </div>
         </div>
     </div>
-    <div id="legend">
+    <div id="nearest_sidebar">
+    </div>
+    <div class="navbar navbar-fixed-bottom" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Footer</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <p class="navbar-text navbar-right" data-toggle="modal" data-target="#opening-dialog" style="cursor: pointer"><span class="glyphicon glyphicon-repeat"></span> Restart</p>
+            </div>
+        </div>
     </div>
 <script type="text/javascript">
     //map environmental variables
@@ -146,26 +186,39 @@
     var init_bounds = L.latLngBounds(
         L.latLng(40.59875083395948, -79.23850049516057), 
         L.latLng(44.75896447862758, -73.27685372593069));
-    var legend = L.control.sidebar('legend', {
-                    position: 'right',
-                    closeButton: 'false'
-        });
-    var zoom_alert = L.control({position: 'topleft'});
-    var zoom_alert_added = false;
-    zoom_alert.onAdd = function(){
-        zoom_alert_added = true;
-        var div = L.DomUtil.create('div', "alert alert-warning");
-        div.innerHTML = "<strong>Zoom in to see points</strong>";
-        return div;
-    }
-    zoom_alert.onRemove = function(){
-        zoom_alert_added = false;
-    }
     var address_icon = L.MakiMarkers.icon({icon: "building", color: "#d53e4f", size: "l"});
-    var near_points_icon = L.MakiMarkers.icon({icon: "pharmacy", color: "#3288bd", size: "l"});
-    
+    var point_icon = L.MakiMarkers.icon({icon: "pharmacy", color: "#80b3d3", size: "l"});
+    var city_icon = L.MakiMarkers.icon({icon: "town-hall", color: "#5e4fa2", size: "l"});
+    var nearest_sidebar = L.control.sidebar('nearest_sidebar', {
+                    position: 'right',
+                    closeButton: false
+        });
+    var legend = L.control({position: 'topleft'});
+    var zoom_alert_added = false;
+    var $zoom_alert = $('<tr class="legend-table">').addClass('warning');
+    $zoom_alert.html('<td class="legend-table"><center><strong>Zoom in to see points</strong></center></td>')
+    legend.onAdd = function(){
+        var $div = $('<div>')
+        $div.addClass('legend panel panel-default');
+        var $table = $('<table>')
+        $table.addClass('table legend-table');
+        var $address_row = $('<tr class="legend-table">');
+        $address_row.html('<td class="legend-table"><img src='+address_icon.options.iconUrl+'>Your address</td>');
+        var $point_row = $('<tr class="legend-table">');
+        $point_row.html('<td class="legend-table"><img src='+point_icon.options.iconUrl+'>Dropbox location</td>');
+        var $city_row = $('<tr class="legend-table">');
+        $city_row.html('<td class="legend-table"><img src='+city_icon.options.iconUrl+'>City</td>');
+        $table.append($address_row);
+        $table.append($point_row);
+        $table.append($city_row);
+        $div.append($table);
+        console.log($div);
+        return $div[0];
+    }
     //load map
     window.onload = function(){
+        $('#geolocate').tooltip();
+        $('#address_search').tooltip();
         $('#opening-dialog').modal('show');
         map = L.map('map', {maxZoom:zoom_max});
         L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -175,7 +228,18 @@
                 }).addTo(map);
         map.fitBounds(init_bounds);
         map.addControl(legend);
+        map.addControl(nearest_sidebar);
+        $('table.legend-table').append($zoom_alert);
+        zoom_alert_added = true;
         
+        //set autolocation control
+        $('#geolocate').click(function(){
+            map.locate();
+        });
+        map.on('locationfound', function(e){
+            map.panTo(e.latlng);
+            map.setZoom(zoom_points);
+        });
         var counties = null;
         $.ajax({
             url:"static/json/nys_counties.geojson",
@@ -193,7 +257,7 @@
         });
         counties.setStyle({color:'#000', opacity: '1', weight: 3});
         counties.addTo(map);
-        if(!zoom_alert_added){map.addControl(zoom_alert);}
+        //if(!zoom_alert_added){map.addControl(zoom_alert);}
         
 
         //map zoom, drag behavior
@@ -201,7 +265,7 @@
             if (map.getZoom() < zoom_cities){
                 map.removeLayer(group_test.city_group);
                 counties.setStyle({fill:true});
-                if(!zoom_alert_added){map.addControl(zoom_alert);}
+                if(!zoom_alert_added){$('table.legend-table').append($zoom_alert); zoom_alert_added=true;}
 
             }
             if (map.getZoom() > zoom_counties & map.getZoom() <= zoom_cities){
@@ -209,10 +273,10 @@
                 map.removeLayer(group_test.point_group);
                 map.removeLayer(near_layers);
                 map.addLayer(group_test.city_group);
-                if(!zoom_alert_added){map.addControl(zoom_alert);}
+                if(!zoom_alert_added){$('table.legend-table').append($zoom_alert); zoom_alert_added=true;}
             }
             if (map.getZoom() >= zoom_points){
-                if(zoom_alert_added){map.removeControl(zoom_alert);}
+                if(zoom_alert_added){$zoom_alert.remove(); zoom_alert_added=false;}
                 counties.setStyle({fill:false});
                 map.removeLayer(group_test.city_group);
                 map.addLayer(group_test.point_group);
@@ -225,14 +289,6 @@
                 getVisiblePoints(group_test.pointMap, map);
             }
         });
-        
-        $(".address-search").popover({
-            placement: 'bottom',
-            html: true,
-            content: "Enter your address to find the nearest dropoff location",
-            delay: { show: 100, hide: 100 }
-        });
-        $(".address-search").popover("show");
 
         var group_test;
         $('#drug-dropbox').click(function(){
@@ -258,7 +314,7 @@
         //geocoding address
         $('#address').submit(function () {
             codeAddress();
-            $('.input-group-addon').html("searching");
+            $('#address-search-button').button("loading");
             return false;
         });
         
@@ -269,14 +325,14 @@
         var address_marker = null;
         var address_buffer = null;
         function codeAddress() {
-            legend.hide();
+            nearest_sidebar.hide();
             var search_address = document.forms["address"]["address"].value
             var geocoder = new google.maps.Geocoder();
             if (address_marker != null){
                 map.removeLayer(address_marker);
             }
             geocoder.geocode( {'address': search_address}, function(results, status) {
-                console.log(results);
+                $('#address-search-button').button("reset");
               if (status == google.maps.GeocoderStatus.OK) {
                 var latlng = L.latLng(results[0].geometry.location.k, results[0].geometry.location.A)
                 address_marker = L.marker(latlng, {zIndexOffset: 999});
@@ -335,13 +391,12 @@
                 var line = L.polyline([element.point.getLatLng(), address_point.getLatLng()]);
                 near_layers.addLayer(line);
                 near_layers.addLayer(element.point);
-                element.point.setIcon(near_points_icon);
                 element.point.setZIndexOffset(999);
                 
-                //adds near points to legend
+                //adds near points to nearest_sidebar
                 var tr = document.createElement('tr');
                 tr.setAttribute('id', element.name);
-                tr.className = 'near-point-legend';
+                tr.className = 'near-point-nearest_sidebar';
                 var feature = element.point.toGeoJSON();
                 var rank = index + 1;
                 tr.innerHTML = "<td>"+rank+"</td><td><strong>"+feature.id+"</strong><br>"+feature.properties.street+"<br>"+feature.properties.citystatezip+"<br><a href="+element.directions_url+" target='_blank'>get directions</a></td>";
@@ -375,10 +430,10 @@
             table.className = "table table-hover";
             table.appendChild(tbody);
             near_points_div.appendChild(table);
-            legend.addTo(map);
+            nearest_sidebar.addTo(map);
             $(".points-table").remove();
-            $("#legend").append(near_points_div);
-            legend.show();
+            $("#nearest_sidebar").append(near_points_div);
+            nearest_sidebar.show();
         }
     }
 
