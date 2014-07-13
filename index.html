@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 	<title>Dropoff Locations Map | Buffalo, NY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="static/leaflet/leaflet.css">
     <link rel="stylesheet" type="text/css" href="static/css/L.Control.Sidebar.css">
     <script src="static/leaflet/leaflet.js" type="text/javascript"></script>
@@ -68,14 +69,17 @@
     .legend {
         background-color: white;
         width: 200px;
-
+        margin-top: 1em;
     }
-
     .legend-table{
-        height: 10px;
-        vertical-align: middle;
+        margin-left:1em;
     }
 
+    #footer{
+        position:fixed;
+        margin-bottom:0;
+        z-index:10000;
+    }
     </style>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
@@ -88,97 +92,93 @@
 </head>
 
 <body>
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="#">Dropbox  <span class="glyphicon glyphicon-info-sign" data-toggle="modal" data-target="#myModal">
-                </span></a>
-            </div>
-            <div class="navbar-collapse collapse">
-                
-                <ul class="nav navbar-nav">
-                    <li><a href="#"><span id="geolocate" class="glyphicon glyphicon-map-marker" data-toggle="tooltip" data-placement="bottom" title="Show my location"></span></a></li>
-                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span id="address_search" class="glyphicon glyphicon-search" data-toggle="tooltip" data-placement="bottom" title="Search your address"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">
-                            <form name="address" id="address" target="_self" class="navbar-form navbar-left" role="search"> 
-                                <div class="form-group address-search">
-                                    <input type="text" autocomplete="off" class="form-control" name="address" placeholder="address">
-                                </div>
-                                <button type="submit" id="address-search-button" data-loading-text="Searching..." class="btn btn-primary">Search</button>
-                            </form>
-                        </a></li>
-                    </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div id="map">
-    </div>
-    <div class="modal fade" id="opening-dialog" role="dialog" aria-hidden="true" style="z-index: 2001">
-        <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h4 class="modal-title" id="myModalLabel">Welcome</h4>
-              </div>
-              <div class="modal-body">
-                <p>What kind of dropbox would you like to find?</p>
-                <div class="btn-group btn-group-justified">
-                    <div class="btn-group">
-                        <button id="drug-dropbox" type="button" class="btn btn-default" >Drug dropbox</button>
-                    </div>
-                    <div class="btn-group">
-                        <button id="needle-dropbox"type="button" class="btn btn-default">Needle Dropbox</button>
-                    </div>
-                    <div class="btn-group">
-                        <button id="other-dropbox" type="button" class="btn btn-default">Other</button>
-                    </div>
+    <div class="container-fluid">
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand" href="#">Safely Dispose of Needles, Syringes, and Lancets and Unused, Unneeded, and Unwanted Medications  <span class="glyphicon glyphicon-info-sign" data-toggle="modal" data-target="#myModal">
+                    </span></a>
                 </div>
-              </div>
+                <div class="navbar-collapse collapse">
+                    
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="#"><span id="geolocate" class="glyphicon glyphicon-map-marker"></span></a></li>
+                        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-search"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">
+                                <form name="address" id="address" target="_self" class="navbar-form navbar-left" role="search"> 
+                                    <div class="form-group address-search">
+                                        <input type="text" autocomplete="off" class="form-control" name="address" placeholder="address">
+                                    </div>
+                                    <button type="submit" id="address-search-button" data-loading-text="Searching..." class="btn btn-primary">Search</button>
+                                </form>
+                            </a></li>
+                        </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="z-index: 2001">
-        <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Dropbox</h4>
-              </div>
-              <div class="modal-body">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </div>
+        <div class="row">
+            <div id="map" class="col-md-12">
             </div>
         </div>
-    </div>
-    <div id="nearest_sidebar">
-    </div>
-    <div class="navbar navbar-fixed-bottom" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="#">Footer</a>
+        <div class="modal fade" id="opening-dialog" role="dialog" aria-hidden="true" style="z-index: 2001">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Welcome</h4>
+                  </div>
+                  <div class="modal-body">
+                    <p>What kind of dropbox would you like to find?</p>
+                    <div class="btn-group btn-group-justified">
+                        <div class="btn-group">
+                            <button id="drug-dropbox" type="button" class="btn btn-default" >Drug dropbox</button>
+                        </div>
+                        <div class="btn-group">
+                            <button id="other-dropbox" type="button" class="btn btn-default">Other</button>
+                        </div>
+                    </div>
+                  </div>
+                </div>
             </div>
-            <div class="navbar-collapse collapse">
-                <p class="navbar-text navbar-right" data-toggle="modal" data-target="#opening-dialog" style="cursor: pointer"><span class="glyphicon glyphicon-repeat"></span> Restart</p>
+        </div>
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="z-index: 2001">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="info-modal-title"></h4>
+                  </div>
+                  <div class="modal-body" id="info-modal-body">
+                    
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div id="nearest_sidebar">
+        </div>
+        <div class="row navbar-fixed-bottom" id="footer">
+            <div class="col-md-8">
+              For more information on the Syringe Access and Disposal Programs, please visit the Erie County site (with information about medication disposal sites exclusive to Erie County) or the New York State Department of Health site.
+            </div>
+            <div class="col-md-4">
+                <p class="navbar-text navbar-right" data-toggle="modal" data-target="#opening-dialog" style="cursor: pointer" id="restart"><span class="glyphicon glyphicon-repeat"></span> Restart</p>
             </div>
         </div>
     </div>
 <script type="text/javascript">
     //map environmental variables
     var map;
+    var layers = [];
+    var address_marker = null;
+    var address_buffer = null;
     var zoom_counties = 8;
     var zoom_cities = 10;
     var zoom_points = 12;
@@ -195,19 +195,19 @@
         });
     var legend = L.control({position: 'topleft'});
     var zoom_alert_added = false;
-    var $zoom_alert = $('<tr class="legend-table">').addClass('warning');
-    $zoom_alert.html('<td class="legend-table"><center><strong>Zoom in to see points</strong></center></td>')
+    var $zoom_alert = $('<li>');
+    $zoom_alert.html('<h5 class="text-warning"><strong><center>Zoom in to see points</center><strong></h5>');
     legend.onAdd = function(){
         var $div = $('<div>')
         $div.addClass('legend panel panel-default');
-        var $table = $('<table>')
-        $table.addClass('table legend-table');
-        var $address_row = $('<tr class="legend-table">');
-        $address_row.html('<td class="legend-table"><img src='+address_icon.options.iconUrl+'>Your address</td>');
-        var $point_row = $('<tr class="legend-table">');
-        $point_row.html('<td class="legend-table"><img src='+point_icon.options.iconUrl+'>Dropbox location</td>');
-        var $city_row = $('<tr class="legend-table">');
-        $city_row.html('<td class="legend-table"><img src='+city_icon.options.iconUrl+'>City</td>');
+        var $table = $('<ul>')
+        $table.addClass('list-unstyled legend-table');
+        var $address_row = $('<li>');
+        $address_row.html('<img src='+address_icon.options.iconUrl+'>Your address');
+        var $point_row = $('<li>');
+        $point_row.html('<img src='+point_icon.options.iconUrl+'>Dropbox location');
+        var $city_row = $('<li>');
+        $city_row.html('<img src='+city_icon.options.iconUrl+'>City');
         $table.append($address_row);
         $table.append($point_row);
         $table.append($city_row);
@@ -217,29 +217,17 @@
     }
     //load map
     window.onload = function(){
-        $('#geolocate').tooltip();
-        $('#address_search').tooltip();
-        $('#opening-dialog').modal('show');
         map = L.map('map', {maxZoom:zoom_max});
         L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
                     attribution:
                         '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                         '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>',
                 }).addTo(map);
-        map.fitBounds(init_bounds);
         map.addControl(legend);
         map.addControl(nearest_sidebar);
-        $('table.legend-table').append($zoom_alert);
+        $('.legend-table').append($zoom_alert);
         zoom_alert_added = true;
         
-        //set autolocation control
-        $('#geolocate').click(function(){
-            map.locate();
-        });
-        map.on('locationfound', function(e){
-            map.panTo(e.latlng);
-            map.setZoom(zoom_points);
-        });
         var counties = null;
         $.ajax({
             url:"static/json/nys_counties.geojson",
@@ -257,15 +245,49 @@
         });
         counties.setStyle({color:'#000', opacity: '1', weight: 3});
         counties.addTo(map);
-        //if(!zoom_alert_added){map.addControl(zoom_alert);}
-        
+        function initMap(){
+            nearest_sidebar.hide();
+            counties.setStyle({fill:true});
+            map.fitBounds(init_bounds);
+            map.on('zoomend', function(){});
+            map.on('move', function(){});
+            //set autolocation control
+            $('#geolocate').click(function(){
+                map.locate();
+            });
+            map.on('layeradd', function(e){
+                if (layers.indexOf(e.layer) == -1){
+                    layers.push(e.layer);
+                }
+            });
+            map.on('layerremove', function(e){
+                layers = jQuery.grep(layers, function(a){
+                    return a !== e.layer;
+                });
+            });
+            map.on('locationfound', function(e){
+                map.panTo(e.latlng);
+                map.setZoom(zoom_points);
+            });
+        }
+        function restart(){
+            initMap();
+            layers.forEach(function(element){
+                map.removeLayer(element);
+            });
+        }
+        $('#opening-dialog').modal({backdrop:"static"});
+        $('#opening-dialog').on('show.bs.modal', function (e) {
+            restart();
+        });
+        $('#opening-dialog').modal('show');
 
         //map zoom, drag behavior
-        map.on('zoomend', function(e){
+        function zoomEvent(e){
             if (map.getZoom() < zoom_cities){
-                map.removeLayer(group_test.city_group);
-                counties.setStyle({fill:true});
-                if(!zoom_alert_added){$('table.legend-table').append($zoom_alert); zoom_alert_added=true;}
+                    map.removeLayer(group_test.city_group);
+                    counties.setStyle({fill:true});
+                    if(!zoom_alert_added){$('.legend-table').append($zoom_alert); zoom_alert_added=true;}
 
             }
             if (map.getZoom() > zoom_counties & map.getZoom() <= zoom_cities){
@@ -273,7 +295,7 @@
                 map.removeLayer(group_test.point_group);
                 map.removeLayer(near_layers);
                 map.addLayer(group_test.city_group);
-                if(!zoom_alert_added){$('table.legend-table').append($zoom_alert); zoom_alert_added=true;}
+                if(!zoom_alert_added){$('.legend-table').append($zoom_alert); zoom_alert_added=true;}
             }
             if (map.getZoom() >= zoom_points){
                 if(zoom_alert_added){$zoom_alert.remove(); zoom_alert_added=false;}
@@ -283,18 +305,46 @@
                 map.addLayer(near_layers);
                 getVisiblePoints(group_test.pointMap, map);
             }
-        });
-        map.on('move', function(e){
+        }
+
+        function moveEvent(e){
             if (map.getZoom() >= zoom_points){
                 getVisiblePoints(group_test.pointMap, map);
             }
-        });
+        }
 
+        function addZoomEvents() {
+            map.on('zoomend', zoomEvent);
+            map.on('move', moveEvent);
+        }
+        function removeZoomEvents(){
+            map.off('zoomend', zoomEvent);
+            map.off('move', moveEvent);
+        }
+        
+        //opening dialog handling
         var group_test;
         $('#drug-dropbox').click(function(){
             group_test = new Group("static/json/esap_pharmacies.geojson", 'test');
             $('#opening-dialog').modal('hide');
+            addZoomEvents();
+            address_buffer = 16093.4;
+            $('#info-modal-title').text("Needle Access and Disposal (NY State-wide):");
+            $('#info-modal-body').html("Safe disposal of sharps is critically important to optimize health, safety and protection of the environment. The best way to ensure that people are protected from potential injury or disease transmission of blood borne diseases due to needle sticks is to follow established guidelines for the proper containment of “sharps” syringes, needles and lancets and other safer disposal practices. Use this website to find a needle disposal dropbox site or clean needle purchase location near you.");
         });
+        $('#other-dropbox').click(function(){
+            group_test = new Group("static/json/dropboxes_wny.geojson", 'test');
+            $('#opening-dialog').modal('hide');
+            map.fitBounds(group_test.point_group);
+            group_test.point_group.addTo(map);
+            counties.setStyle({fill:false});
+            removeZoomEvents();
+            address_buffer = false;
+            if(zoom_alert_added){$zoom_alert.remove(); zoom_alert_added=false;}
+            $("#info-modal-title").text('Medication Disposal (currently only available at dropboxes in Erie County):')
+            $('#info-modal-body').html("If not disposed of properly, prescription and over-the-counter medications pose a hazard to our environment and risk getting into the hands of children or others who may be unintentionally harmed by their use. Residents are encouraged to go through their medicine cabinets, closets, junk drawers, etc. and gather unused, expired and unwanted prescription and over-the-counter medications.  Use this website to find a site near you where medications can be disposed of free of charge with no questions asked.");
+        });
+
 
         //create new layer group
         function getVisiblePoints(points, thismap){
@@ -318,12 +368,9 @@
             return false;
         });
         
-        map.on('layeradd', function(){
+        /*map.on('layeradd', function(){
             $('.input-group-addon').html('<span class="glyphicon glyphicon-search"></span>');
-        });
-        
-        var address_marker = null;
-        var address_buffer = null;
+        });*/
         function codeAddress() {
             nearest_sidebar.hide();
             var search_address = document.forms["address"]["address"].value
@@ -333,11 +380,11 @@
             }
             geocoder.geocode( {'address': search_address}, function(results, status) {
                 $('#address-search-button').button("reset");
+                console.log(results);
               if (status == google.maps.GeocoderStatus.OK) {
-                var latlng = L.latLng(results[0].geometry.location.k, results[0].geometry.location.A)
+                var latlng = L.latLng(results[0].geometry.location.k, results[0].geometry.location.B)
                 address_marker = L.marker(latlng, {zIndexOffset: 999});
                 address_marker.setIcon(address_icon);
-                address_buffer = L.circle(latlng, 16093.4);
                 map.addLayer(address_marker);
                 address_marker.bindPopup("<td><strong>Your address:</strong><br>"+search_address);
                 address_marker.openPopup();
@@ -354,9 +401,9 @@
             map.removeLayer(near_layers);
             near_layers = L.layerGroup();
             near_points = [];
-            bounds = buffer.getBounds();
             var o = address_point.getLatLng();
             map.panTo(o);
+            console.log(group_test.pointMap);
             for (var p in group_test.pointMap){
                 var point = group_test.pointMap[p].layer;
                 var d = point.getLatLng();
@@ -364,7 +411,10 @@
                 var directions_url = "https://www.google.com/maps/dir/"+o.lat+","+o.lng+"/"+d.lat+","+d.lng;
                 var feature = point.toGeoJSON();
                 point.bindPopup("<td><strong>"+feature.id+"</strong><br>"+feature.properties.street+" "+feature.properties.citystatezip+"<br><a href="+directions_url+" target='_blank'>get directions</a></td>");
-                if(distance <= buffer.getRadius()){
+                if (!buffer){
+                    near_points.push({"name": p, "point": point, "distance": distance, "directions_url": directions_url});
+                }
+                else if(distance <= buffer){
                     near_points.push({"name": p, "point": point, "distance": distance, "directions_url": directions_url});
                 }
             }
@@ -376,6 +426,7 @@
                 // a must be equal to b
                 return 0;
             });
+            console.log(near_points);
             var tbody = document.createElement('tbody');
             if(near_points.length > 10){
                 near_points = near_points.slice(0,10);
