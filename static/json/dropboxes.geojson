@@ -1,0 +1,19 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "address": "Augspurger Road", "city": "Buffalo", "state": "NY", "zip": 14228, "name": "SUNY Buffalo - Bissell Hall, North Campus" }, "geometry": { "type": "Point", "coordinates": [ -78.7867089001073, 42.998052899767806 ] } },
+{ "type": "Feature", "properties": { "address": "10 Delaware Ave", "city": "Buffalo", "state": "NY", "zip": 14202, "name": "Erie County Sheriff's Office" }, "geometry": { "type": "Point", "coordinates": [ -78.879490000120356, 42.884532999732912 ] } },
+{ "type": "Feature", "properties": { "address": "2255 Baseline Road", "city": "Grand Island", "state": "NY", "zip": 14072, "name": "Grand Is land Town Hall" }, "geometry": { "type": "Point", "coordinates": [ -78.964765000128864, 43.022726999694022 ] } },
+{ "type": "Feature", "properties": { "address": "6205 Main Street", "city": "Williamsville", "state": "NY", "zip": 14221, "name": "Erie Community College - North Campus, College Safety Office - Rm. G143B" }, "geometry": { "type": "Point", "coordinates": [ -78.721635000100079, 42.961440999791023 ] } },
+{ "type": "Feature", "properties": { "address": "1 Town Place", "city": "Clarence", "state": "NY", "zip": 14031, "name": "Clarence Town Hall" }, "geometry": { "type": "Point", "coordinates": [ -78.639707000090439, 42.993901999816842 ] } },
+{ "type": "Feature", "properties": { "address": "2001 Main Street", "city": "Buffalo", "state": "NY", "zip": 14208, "name": "Canisius College, Dept. of Public Safety - Bosch Hall" }, "geometry": { "type": "Point", "coordinates": [ -78.850840300116147, 42.925210199744058 ] } },
+{ "type": "Feature", "properties": { "address": "2 Agassiz Circle", "city": "Buffalo", "state": "NY", "zip": 14214, "name": "Medaille College, Public Safety Office" }, "geometry": { "type": "Point", "coordinates": [ -78.854739000116567, 42.929393999742459 ] } },
+{ "type": "Feature", "properties": { "address": "121 Ellicott Street", "city": "Buffalo", "state": "NY", "zip": 14203, "name": "Erie Community College - City Campus, College Safety Office - Rm. 102" }, "geometry": { "type": "Point", "coordinates": [ -78.873071800119575, 42.882334199735588 ] } },
+{ "type": "Feature", "properties": { "address": "4041 Southwestern Boulevard", "city": "Orchard Park", "state": "NY", "zip": 14127, "name": "Erie Community College - South Campus, Lobby - Student Loans" }, "geometry": { "type": "Point", "coordinates": [ -78.798252000111688, 42.772446999765826 ] } },
+{ "type": "Feature", "properties": { "address": "8812 State Road", "city": "Colden", "state": "NY", "zip": 14033, "name": "Colden Town Hall, Town Hall Lobby" }, "geometry": { "type": "Point", "coordinates": [ -78.685563300099318, 42.644058699805541 ] } },
+{ "type": "Feature", "properties": { "address": "65 Franklin Street", "city": "Springville", "state": "NY", "zip": 14141, "name": "Springville Town Hall, Sheriff's Substation" }, "geometry": { "type": "Point", "coordinates": [ -78.665203000098273, 42.510196999813004 ] } },
+{ "type": "Feature", "properties": { "address": "116 Bowen Road", "city": "Elma", "state": "NY", "zip": 14059, "name": "Elma Town Hall, Town Hall Lobby" }, "geometry": { "type": "Point", "coordinates": [ -78.640571700091954, 42.84956939981771 ] } }
+]
+}
