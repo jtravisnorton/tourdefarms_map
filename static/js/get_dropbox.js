@@ -131,7 +131,7 @@ return $div[0];
 }
 var zoom_control = L.control.zoom({position: 'topleft'})
 //load map
-window.onload = function(){
+$(document).ready(function(){
 map = L.map('map', {'zoomControl':false});
 L.tileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             attribution:
@@ -258,7 +258,7 @@ function removeZoomEvents(){
 
 //opening dialog handling
 var group_test;
-$('#drug-dropbox').click(function(){
+$('#needle-dropbox').click(function(){
     group_test = new Group("static/json/esap_pharmacies.geojson", 'test');
     $('#opening-dialog').modal('hide');
     addZoomEvents();
@@ -266,7 +266,7 @@ $('#drug-dropbox').click(function(){
     $('#info-modal-title').text("Needle Access and Disposal (NY State-wide):");
     $('#info-modal-body').html("Safe disposal of sharps is critically important to optimize health, safety and protection of the environment. The best way to ensure that people are protected from potential injury or disease transmission of blood borne diseases due to needle sticks is to follow established guidelines for the proper containment of “sharps” syringes, needles and lancets and other safer disposal practices. Use this website to find a needle disposal dropbox site or clean needle purchase location near you.<br><br>For more information on the Syringe Access and Disposal Programs, please visit the <a href='http://www2.erie.gov/health/index.php?q=needle-disposal-amp-access'>Erie County</a> (with information about medication disposal sites exclusive to Erie County) or the <a href='http://www.health.ny.gov/diseases/aids/consumers/prevention/needles_syringes/index.htm'>New York State Department of Health</a> online.");
 });
-$('#other-dropbox').click(function(){
+$('#drug-dropbox').click(function(){
     group_test = new Group("static/json/dropboxes.geojson", 'test');
     $('#opening-dialog').modal('hide');
     map.fitBounds(group_test.point_group);
@@ -418,5 +418,4 @@ function nearestPoints(address_point, buffer, group){
     nearest_sidebar.show();
 
 
-}
-}
+}});
