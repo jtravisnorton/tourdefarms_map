@@ -79,7 +79,7 @@
         // Create a map object, and include the MapTypeId to add
         // to the map type control.
         var mapOptions = {
-          zoom: 11,
+          zoom: 12,
           center: new google.maps.LatLng(42.87797684287408, -78.69781494140625),
           mapTypeControlOptions: {
             mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
@@ -91,10 +91,6 @@
         //Associate the styled map with the MapTypeId and set it to display.
         map.mapTypes.set('map_style', styledMap);
         map.setMapTypeId('map_style');
-        var mapOptions = {
-          center: new google.maps.LatLng(42.87797684287408, -78.69781494140625),
-          zoom: 11
-        };
         var route = new google.maps.FusionTablesLayer({
           query: {
             select: 'geometry',
